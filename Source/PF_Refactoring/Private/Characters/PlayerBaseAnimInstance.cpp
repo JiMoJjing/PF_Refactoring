@@ -30,15 +30,15 @@ void UPlayerBaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Velocity = MovementComponentRef->Velocity;
 	GroundSpeed = Velocity.Size2D();
 
-	FRotator controlRotation = PlayerBaseRef->GetControlRotation();
-	FRotator actorRotation = PlayerBaseRef->GetActorRotation();
+	const FRotator controlRotation = PlayerBaseRef->GetControlRotation();
+	const FRotator actorRotation = PlayerBaseRef->GetActorRotation();
 
-	FRotator rotation = UKismetMathLibrary::NormalizedDeltaRotator(controlRotation, actorRotation);
+	const FRotator rotation = UKismetMathLibrary::NormalizedDeltaRotator(controlRotation, actorRotation);
 	Yaw = rotation.Yaw;
 	Pitch = rotation.Pitch;
 
-	//float targetDirection = CalculateDirection(PlayerBaseRef->GetVelocity(), FRotator(0.f, controlRotation.Yaw, 0.f));
-	//float targetDirection = CalculateDirection(PlayerBaseRef->GetVelocity(), actorRotation);
+	//const float targetDirection = CalculateDirection(PlayerBaseRef->GetVelocity(), FRotator(0.f, controlRotation.Yaw, 0.f));
+	//const float targetDirection = CalculateDirection(PlayerBaseRef->GetVelocity(), actorRotation);
 	//MoveDirection = FMath::FInterpTo(MoveDirection, targetDirection, DeltaSeconds, InterpSpeed);
 	MoveDirection = CalculateDirection(PlayerBaseRef->GetVelocity(), actorRotation);
 

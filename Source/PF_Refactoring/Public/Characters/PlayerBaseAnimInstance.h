@@ -40,8 +40,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		bool IsFalling;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-		float InterpSpeed = 5.f;
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	//	float InterpSpeed = 5.f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		EArmedState ArmedState;

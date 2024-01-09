@@ -63,7 +63,7 @@ void UStateComponent::MovementStateChanged()
 		return;
 	}
 
-	if (OwnerCharacter->IsMoving() == false)
+	if (OwnerCharacter->IsMovePressed() == false)
 	{
 		SetMovementState(EMovementState::EMS_Idle);
 		return;

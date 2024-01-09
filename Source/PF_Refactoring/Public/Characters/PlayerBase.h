@@ -57,6 +57,19 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LeftShiftAction;
 
+	/** Tab Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* TabAction;
+
+	/** Mouse Left Button Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* LeftMouseButtonAction;
+
+	/** Combo Dash Action (WW)*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* DashAction;
+
+
 public:
 	APlayerBase();
 
@@ -82,6 +95,12 @@ protected:
 	void LeftShiftPressed();
 	void LeftShiftReleased();
 
+	void TabPressed();
+
+	void LeftMouseButtonPressed();
+
+	void Dash();
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -94,19 +113,51 @@ public:
 	UFUNCTION()
 		FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
 
-	/** DECLARE_EVENT */
 public:
+	/** DECLARE_EVENT */
 	DECLARE_EVENT(APlayerBase, FMoveEvent);
 	FMoveEvent& OnMoveEvent() { return MoveEvent; }
 private:
 	FMoveEvent MoveEvent;
 
 
-	/** 현재 움직임 입력이 있는지 체크할 bool */
 public:
+	/** 현재 움직임 입력이 있는지 체크할 bool */
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool IsMoving() { return bMoving; }
+		FORCEINLINE bool IsMovePressed() { return bMovePressed; }
 private:
-	bool bMoving = false;
+	bool bMovePressed = false;
 
+	/** Montages */
+private:
+	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* EquipMontage;
+
+	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* IdleWalkComboMontage;
+
+	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* RunningComboMontage;
+
+	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
+		class UAnimMontage* JumpComboMontage;
+
+	/** Unarmed <-> Armed */
+public:
+	void PlayEquipMontage(const FName& SectionName);
+
+	UFUNCTION(BlueprintCallable)
+		void Arm();
+	UFUNCTION(BlueprintCallable)
+		void Disarm();
+
+	/** Weapons */
+private:
+	UPROPERTY(EditAnywhere, category = "Weapon", meta = (AllowPrivateAccess = "true"))
+		TSubclassOf<class AWeaponBase> WeaponClass;
+	UPROPERTY()
+		class AWeaponBase* EquippedWeapon;
+public:
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		class AWeaponBase* GetEquippedWeapon() { return EquippedWeapon; }
 };

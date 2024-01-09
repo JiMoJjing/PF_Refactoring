@@ -11,6 +11,10 @@
 #include "ActorComponents/StateComponent.h"
 #include "ActorComponents/AttributeComponent.h"
 
+#include "Weapon/WeaponBase.h"
+
+#include "Utilities.h"
+
 APlayerBase::APlayerBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -25,7 +29,7 @@ APlayerBase::APlayerBase()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
 
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -56,11 +60,45 @@ void APlayerBase::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	if (GetWorld() && WeaponClass)
+	{
+		FActorSpawnParameters actorSpawnParams;
+		actorSpawnParams.Owner = this;
+		actorSpawnParams.Instigator = this;
+		
+		FRotator rotation;
+		FVector location = FVector::ZeroVector;
+
+		EquippedWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponClass, location, rotation, actorSpawnParams);
+
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->AttachMeshToSocket(GetMesh(), TEXT("Sword_Attach_Pelvis"));
+		}
+	}
 }
 
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	//FRotator actorRotation = GetActorRotation();
+	//FVector velocity = GetVelocity();
+	//FVector normalizedVel = velocity.GetSafeNormal2D();
+
+	//FMatrix matrix = FRotationMatrix(actorRotation);
+	//FVector forwardVector = matrix.GetScaledAxis(EAxis::X);
+	//FVector rightVector = matrix.GetScaledAxis(EAxis::Y);
+
+	//float dot = FVector::DotProduct(normalizedVel, forwardVector);
+	//FString text1 = FString::Printf(TEXT("Not Acos : %f"), FMath::RadiansToDegrees(dot));
+	//FString text2 = FString::Printf(TEXT("Yes Acos : %f"), FMath::RadiansToDegrees(FMath::Acos(dot)));
+	//CLog::Print(text1, 5, 0.001f);
+	//CLog::Print(text2, 4, 0.001f);
+	//float dot2 = FVector::DotProduct(normalizedVel, rightVector);
+	//FString text3 = FString::Printf(TEXT("Dot rightVector : %f"), dot2);
+	//CLog::Print(text3, 3, 0.001f);
+
 }
 
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -83,6 +121,13 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Started, this, &APlayerBase::LeftShiftPressed);
 		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Completed, this, &APlayerBase::LeftShiftReleased);
 
+		//Tab
+		EnhancedInputComponent->BindAction(TabAction, ETriggerEvent::Started, this, &APlayerBase::TabPressed);
+
+		//LeftMouseButton
+		EnhancedInputComponent->BindAction(LeftMouseButtonAction, ETriggerEvent::Started, this, &APlayerBase::LeftMouseButtonPressed);
+
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &APlayerBase::Dash);
 	}
 }
 
@@ -107,9 +152,9 @@ void APlayerBase::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
-	if (!bMoving)
+	if (!bMovePressed)
 	{
-		bMoving = true;
+		bMovePressed = true;
 	}
 	if (MoveEvent.IsBound())
 	{
@@ -119,7 +164,7 @@ void APlayerBase::Move(const FInputActionValue& Value)
 
 void APlayerBase::MoveCompleted()
 {
-	bMoving = false;
+	bMovePressed = false;
 	if (MoveEvent.IsBound())
 	{
 		MoveEvent.Broadcast();
@@ -161,3 +206,52 @@ void APlayerBase::LeftShiftReleased()
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 }
 
+void APlayerBase::TabPressed()
+{
+	FName sectionName = TEXT("Sword_Drawing");
+
+	if (StateComponent->IsArmedState(EArmedState::EAS_Armed))
+	{
+		sectionName = TEXT("Sword_Sheathing");
+	}
+	
+	PlayEquipMontage(sectionName);
+}
+
+void APlayerBase::LeftMouseButtonPressed()
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if (animInstance == nullptr) return;
+
+	if (IdleWalkComboMontage && !StateComponent->IsActionState(EActionState::EAS_Attacking))
+	{
+		animInstance->Montage_Play(IdleWalkComboMontage);
+	}
+}
+
+void APlayerBase::Dash()
+{
+	CLog::Print(TEXT("Dash"), 3, 1.f);
+}
+
+void APlayerBase::PlayEquipMontage(const FName& SectionName)
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	if (animInstance && EquipMontage)
+	{
+		animInstance->Montage_Play(EquipMontage);
+		animInstance->Montage_JumpToSection(SectionName, EquipMontage);
+	}
+}
+
+void APlayerBase::Arm()
+{
+	StateComponent->SetArmedState(EArmedState::EAS_Armed);
+	bUseControllerRotationYaw = true;
+}
+
+void APlayerBase::Disarm()
+{
+	StateComponent->SetArmedState(EArmedState::EAS_Unarmed);
+	bUseControllerRotationYaw = false;
+}
