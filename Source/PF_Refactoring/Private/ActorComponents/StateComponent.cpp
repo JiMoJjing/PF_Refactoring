@@ -13,29 +13,29 @@ void UStateComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwnerCharacter = Cast<APlayerBase>(GetOwner());
+	PlayerBaseRef = Cast<APlayerBase>(GetOwner());
 	
-	if (OwnerCharacter)
+	if (PlayerBaseRef)
 	{
-		OwnerCharacter->MovementModeChangedDelegate.AddDynamic(this, &UStateComponent::MovementModeChanged);
+		PlayerBaseRef->MovementModeChangedDelegate.AddDynamic(this, &UStateComponent::MovementModeChanged);
 
-		OwnerCharacter->OnMoveEvent().AddUObject(this, &UStateComponent::MovementStateChanged);
-		/*OwnerCharacter->OnMoveEvent().AddLambda([this]()
+		PlayerBaseRef->OnMoveEvent().AddUObject(this, &UStateComponent::MovementStateChanged);
+		/*PlayerBaseRef->OnMoveEvent().AddLambda([this]()
 			{
-				if (OwnerCharacter->GetMovementComponent()->IsFalling())
+				if (PlayerBaseRef->GetMovementComponent()->IsFalling())
 				{
 					SetMovementState(EMovementState::EMS_Jumping);
 					return;
 				}
 
-				if (!OwnerCharacter->IsMoving())
+				if (!PlayerBaseRef->IsMoving())
 				{
 					SetMovementState(EMovementState::EMS_Idle);
 					return;
 				}
 
-				float speed = OwnerCharacter->GetVelocity().Size2D();
-				if (FMath::IsNearlyEqual(speed, OwnerCharacter->GetMovementComponent()->GetMaxSpeed(), 1.f))
+				float speed = PlayerBaseRef->GetVelocity().Size2D();
+				if (FMath::IsNearlyEqual(speed, PlayerBaseRef->GetMovementComponent()->GetMaxSpeed(), 1.f))
 				{
 					SetMovementState(EMovementState::EMS_Running);
 					return;
@@ -57,28 +57,28 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UStateComponent::MovementStateChanged()
 {
-	if (OwnerCharacter->GetMovementComponent()->IsFalling())
+	if (PlayerBaseRef->GetMovementComponent()->IsFalling())
 	{
 		SetMovementState(EMovementState::EMS_Jumping);
 		return;
 	}
 
-	if (OwnerCharacter->IsMovePressed() == false)
+	if (PlayerBaseRef->IsMovePressed() == false)
 	{
 		SetMovementState(EMovementState::EMS_Idle);
 		return;
 	}
 
-	float speed = OwnerCharacter->GetVelocity().Size2D();
+	float speed = PlayerBaseRef->GetVelocity().Size2D();
 
-	if (OwnerCharacter->GetAttributeComponent() == nullptr) return;
+	if (PlayerBaseRef->GetAttributeComponent() == nullptr) return;
 
-	if (OwnerCharacter->GetCharacterMovement()->GetMaxSpeed() == OwnerCharacter->GetAttributeComponent()->GetRunSpeed())
+	if (PlayerBaseRef->GetCharacterMovement()->GetMaxSpeed() == PlayerBaseRef->GetAttributeComponent()->GetRunSpeed())
 	{
 		SetMovementState(EMovementState::EMS_Running);
 		return;
 	}
-	else if (OwnerCharacter->GetCharacterMovement()->GetMaxSpeed() == OwnerCharacter->GetAttributeComponent()->GetWalkSpeed())
+	else if (PlayerBaseRef->GetCharacterMovement()->GetMaxSpeed() == PlayerBaseRef->GetAttributeComponent()->GetWalkSpeed())
 	{
 		SetMovementState(EMovementState::EMS_Walking);
 		return;

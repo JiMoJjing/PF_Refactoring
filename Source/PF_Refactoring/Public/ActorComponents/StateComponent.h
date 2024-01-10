@@ -78,6 +78,6 @@ private:
 	EActionState ActionState = EActionState::EAS_Idle;
 	EArmedState ArmedState = EArmedState::EAS_Unarmed;
 
-	class APlayerBase* OwnerCharacter;
+	class APlayerBase* PlayerBaseRef;
 
 };

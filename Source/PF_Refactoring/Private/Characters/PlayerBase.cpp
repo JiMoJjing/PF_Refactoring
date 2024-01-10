@@ -10,6 +10,7 @@
 
 #include "ActorComponents/StateComponent.h"
 #include "ActorComponents/AttributeComponent.h"
+#include "ActorComponents/MontageComponent.h"
 
 #include "Weapon/WeaponBase.h"
 
@@ -46,6 +47,7 @@ APlayerBase::APlayerBase()
 
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+	MontageComponent = CreateDefaultSubobject<UMontageComponent>(TEXT("MontageComponent"));
 }
 
 void APlayerBase::BeginPlay()
@@ -133,6 +135,8 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void APlayerBase::Move(const FInputActionValue& Value)
 {
+	if (StateComponent && !StateComponent->IsActionState(EActionState::EAS_Idle)) return;
+
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -186,6 +190,8 @@ void APlayerBase::Look(const FInputActionValue& Value)
 
 void APlayerBase::Jump()
 {
+	if (StateComponent && !StateComponent->IsActionState(EActionState::EAS_Idle)) return;
+
 	bPressedJump = true;
 	JumpKeyHoldTime = 0.0f;
 }
@@ -208,40 +214,23 @@ void APlayerBase::LeftShiftReleased()
 
 void APlayerBase::TabPressed()
 {
-	FName sectionName = TEXT("Sword_Drawing");
-
-	if (StateComponent->IsArmedState(EArmedState::EAS_Armed))
+	if (MontageComponent)
 	{
-		sectionName = TEXT("Sword_Sheathing");
+		MontageComponent->PlayEquipMontage();
 	}
-	
-	PlayEquipMontage(sectionName);
 }
 
 void APlayerBase::LeftMouseButtonPressed()
 {
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	if (animInstance == nullptr) return;
-
-	if (IdleWalkComboMontage && !StateComponent->IsActionState(EActionState::EAS_Attacking))
+	if (MontageComponent)
 	{
-		animInstance->Montage_Play(IdleWalkComboMontage);
+		MontageComponent->PlayAttackMontage();
 	}
 }
 
 void APlayerBase::Dash()
 {
 	CLog::Print(TEXT("Dash"), 3, 1.f);
-}
-
-void APlayerBase::PlayEquipMontage(const FName& SectionName)
-{
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	if (animInstance && EquipMontage)
-	{
-		animInstance->Montage_Play(EquipMontage);
-		animInstance->Montage_JumpToSection(SectionName, EquipMontage);
-	}
 }
 
 void APlayerBase::Arm()

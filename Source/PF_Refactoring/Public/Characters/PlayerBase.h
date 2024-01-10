@@ -10,6 +10,10 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UStateComponent;
+class UAttributeComponent;
+class UMontageComponent;
+class AWeapon;
 
 //DECLARE_EVENT(APlayerBase, FMoveEvent);
 DECLARE_EVENT_OneParam(APlayerBase, FTestEvent, int32);
@@ -28,11 +32,14 @@ class PF_REFACTORING_API APlayerBase : public ACharacter
 		UCameraComponent* FollowCamera;
 private:
 	// Actor Components
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
-		class UStateComponent* StateComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
+		UStateComponent* StateComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
-		class UAttributeComponent* AttributeComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
+		UAttributeComponent* AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
+		UMontageComponent* MontageComponent;
 
 private:
 	// Inputs
@@ -108,10 +115,12 @@ public:
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	/** Returns ActorComponents */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE UStateComponent* GetStateComponent() const { return StateComponent; }
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE UMontageComponent* GetMontageComponent() const { return MontageComponent; }
 
 public:
 	/** DECLARE_EVENT */
@@ -128,24 +137,8 @@ public:
 private:
 	bool bMovePressed = false;
 
-	/** Montages */
-private:
-	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* EquipMontage;
-
-	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* IdleWalkComboMontage;
-
-	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* RunningComboMontage;
-
-	UPROPERTY(EditAnywhere, category = "Montages", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* JumpComboMontage;
-
 	/** Unarmed <-> Armed */
 public:
-	void PlayEquipMontage(const FName& SectionName);
-
 	UFUNCTION(BlueprintCallable)
 		void Arm();
 	UFUNCTION(BlueprintCallable)
@@ -154,10 +147,10 @@ public:
 	/** Weapons */
 private:
 	UPROPERTY(EditAnywhere, category = "Weapon", meta = (AllowPrivateAccess = "true"))
-		TSubclassOf<class AWeaponBase> WeaponClass;
+		TSubclassOf<AWeaponBase> WeaponClass;
 	UPROPERTY()
-		class AWeaponBase* EquippedWeapon;
+		AWeaponBase* EquippedWeapon;
 public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		class AWeaponBase* GetEquippedWeapon() { return EquippedWeapon; }
+		AWeaponBase* GetEquippedWeapon() { return EquippedWeapon; }
 };
