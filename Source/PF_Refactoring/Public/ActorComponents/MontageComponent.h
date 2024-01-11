@@ -48,7 +48,8 @@ public:
 		FORCEINLINE bool CheckRef() const;
 
 	/** Unarmed <-> Armed */
-	void PlayEquipMontage();
+	UFUNCTION(BlueprintCallable)
+		void PlayEquipMontage();
 
 	/** Attack */
 	UFUNCTION(BlueprintCallable)

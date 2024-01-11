@@ -1,10 +1,12 @@
 #include "Weapon/WeaponBase.h"
+#include "Engine/SkeletalMesh.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SceneComponent.h"
 
-#include "Engine/SkeletalMesh.h"
+#include "Interfaces/IHitInterface.h"
 
 #include "Utilities.h"
 
@@ -18,7 +20,11 @@ AWeaponBase::AWeaponBase()
 	BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
 	BoxCollision->SetupAttachment(GetRootComponent());
 
-	//BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoxCollision->SetCollisionProfileName(TEXT("Custom"));
+	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BoxCollision->SetCollisionObjectType(ECC_WorldDynamic);
+
+	BoxCollision->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	Start = CreateDefaultSubobject<USceneComponent>(TEXT("Start"));
 	End = CreateDefaultSubobject<USceneComponent>(TEXT("End"));
@@ -57,7 +63,7 @@ void AWeaponBase::InitBoxCollision()
 	float distanceEndRoot = FVector::Dist(Mesh->GetSocketLocation(TEXT("End")), Mesh->GetBoneLocation("Root"));
 
 	BoxCollision->SetRelativeLocation(FVector(0.f,0.f, distanceEndRoot + (distanceStartEnd / 2)));
-	BoxCollision->SetBoxExtent(FVector(8.f, 8.f, distanceStartEnd / 2));
+	BoxCollision->SetBoxExtent(FVector(10.f, 10.f, distanceStartEnd / 2));
 }
 
 void AWeaponBase::AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName)
@@ -73,6 +79,40 @@ void AWeaponBase::EnableCollision(ECollisionEnabled::Type InType)
 
 void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	CLog::Print(OverlappedComponent->GetName());
+	FHitResult hitResult;
+
+	BoxTrace(hitResult);
+
+	if (hitResult.GetActor())
+	{
+		IIHitInterface* hitInterface = Cast<IIHitInterface>(hitResult.GetActor());
+		if (hitInterface)
+		{
+			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, GetOwner());
+		}
+	}
 }
 
+void AWeaponBase::BoxTrace(FHitResult& BoxHit)
+{
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.AddUnique(GetOwner());
+
+	UKismetSystemLibrary::BoxTraceSingle(
+		this,
+		Start->GetComponentLocation(),
+		End->GetComponentLocation(),
+		FVector(10.f),
+		Start->GetComponentRotation(),
+		ETraceTypeQuery::TraceTypeQuery1,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration,
+		BoxHit,
+		true,
+		FLinearColor::Green,
+		FLinearColor::Red,
+		2.f
+	);
+
+}
