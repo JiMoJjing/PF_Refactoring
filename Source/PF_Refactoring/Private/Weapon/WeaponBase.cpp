@@ -21,10 +21,11 @@ AWeaponBase::AWeaponBase()
 	BoxCollision->SetupAttachment(GetRootComponent());
 
 	BoxCollision->SetCollisionProfileName(TEXT("Custom"));
-	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollision->SetCollisionObjectType(ECC_WorldDynamic);
-
+	BoxCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BoxCollision->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BoxCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+
 
 	Start = CreateDefaultSubobject<USceneComponent>(TEXT("Start"));
 	End = CreateDefaultSubobject<USceneComponent>(TEXT("End"));
@@ -42,6 +43,8 @@ void AWeaponBase::BeginPlay()
 		InitSceneComponents();
 		InitBoxCollision();
 	}
+
+	NowStrength = NowStrength;
 }
 
 void AWeaponBase::Tick(float DeltaTime)
@@ -60,9 +63,9 @@ void AWeaponBase::InitSceneComponents()
 void AWeaponBase::InitBoxCollision()
 {
 	float distanceStartEnd = FVector::Dist(Mesh->GetSocketLocation(TEXT("Start")), Mesh->GetSocketLocation(TEXT("End")));
-	float distanceEndRoot = FVector::Dist(Mesh->GetSocketLocation(TEXT("End")), Mesh->GetBoneLocation("Root"));
+	float distanceStartRoot = FVector::Dist(Mesh->GetSocketLocation(TEXT("Start")), Mesh->GetBoneLocation("Root"));
 
-	BoxCollision->SetRelativeLocation(FVector(0.f,0.f, distanceEndRoot + (distanceStartEnd / 2)));
+	BoxCollision->SetRelativeLocation(FVector(0.f,0.f, distanceStartRoot + (distanceStartEnd / 2)));
 	BoxCollision->SetBoxExtent(FVector(10.f, 10.f, distanceStartEnd / 2));
 }
 
@@ -88,7 +91,7 @@ void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		IIHitInterface* hitInterface = Cast<IIHitInterface>(hitResult.GetActor());
 		if (hitInterface)
 		{
-			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, GetOwner());
+			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, NowStrength, GetOwner());
 		}
 	}
 }
@@ -114,5 +117,4 @@ void AWeaponBase::BoxTrace(FHitResult& BoxHit)
 		FLinearColor::Red,
 		2.f
 	);
-
 }

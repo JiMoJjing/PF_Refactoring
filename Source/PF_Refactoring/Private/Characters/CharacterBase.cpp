@@ -8,10 +8,14 @@ ACharacterBase::ACharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Custom"));
-	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	GetCapsuleComponent()->SetGenerateOverlapEvents(true);
+	GetMesh()->SetCollisionProfileName(TEXT("Custom"));
+	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
@@ -29,9 +33,63 @@ void ACharacterBase::Tick(float DeltaTime)
 
 }
 
-void ACharacterBase::GetHit_Implementation(const FVector& ImpactPoint, AActor* HitActor)
+void ACharacterBase::GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor)
 {
-	FString str = FString::Printf(TEXT("Oouch! By %s"), *(HitActor->GetName()));
-	CLog::Print(str, 10, 2.f, FColor::Red);
+	HitReact(HitActor->GetActorLocation(), Strength);
+}
+
+void ACharacterBase::HitReact(const FVector& ImpactPoint, float Strength)
+{
+	const FVector actorLocation = GetActorLocation();
+	const FVector impactPointXY = FVector(ImpactPoint.X, ImpactPoint.Y, actorLocation.Z);
+
+	const FVector toHitVector = (impactPointXY - actorLocation).GetSafeNormal();
+
+	const FVector forwardVector = GetActorForwardVector();
+	const FVector rightVector = GetActorRightVector();
+
+	double theta = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(forwardVector, toHitVector)));
+	const double dotRight = FVector::DotProduct(rightVector, toHitVector);
+
+	if (dotRight < 0.f)
+	{
+		theta *= -1;
+	}
+
+	FName sectionName = TEXT("FromBack");
+
+	if (theta >= -45.f && theta < 45.f)
+	{
+		sectionName = TEXT("FromFront");
+	}
+	else if (theta >= 45.f && theta < 135.f)
+	{
+		sectionName = TEXT("FromRight");
+	}
+	else if (theta < -45.f && theta >= -135.f)
+	{
+		sectionName = TEXT("FromLeft");
+	}
+
+	if (Strength == 100.f)
+	{
+		PlayMontageWithSection(HitNormalMontage, sectionName);
+	}
+	else if (Strength == 200.f)
+	{
+		PlayMontageWithSection(HitMiddleMontage, sectionName);
+	}
+
+}
+
+void ACharacterBase::PlayMontageWithSection(UAnimMontage* InAnimMontage, const FName& SectionName)
+{
+	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
+	
+	if (animInstance && InAnimMontage)
+	{
+		animInstance->Montage_Play(InAnimMontage);
+		animInstance->Montage_JumpToSection(SectionName, InAnimMontage);
+	}
 }
 

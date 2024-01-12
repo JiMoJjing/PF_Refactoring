@@ -222,7 +222,7 @@ void APlayerBase::TabPressed()
 
 void APlayerBase::LeftMouseButtonPressed()
 {
-	if (MontageComponent)
+	if (StateComponent->IsArmedState(EArmedState::EAS_Armed) && MontageComponent)
 	{
 		MontageComponent->PlayAttackMontage();
 	}

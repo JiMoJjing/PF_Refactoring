@@ -1,7 +1,8 @@
 #include "Characters/PlayerBaseAnimInstance.h"
+#include "KismetAnimationLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/Character.h"
 #include "Gameframework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Characters/PlayerBase.h"
 #include "ActorComponents/StateComponent.h"
 
@@ -37,7 +38,7 @@ void UPlayerBaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Yaw = rotation.Yaw;
 	Pitch = rotation.Pitch;
 
-	FVector forwardVector = PlayerBaseRef->GetActorForwardVector();
+	/*FVector forwardVector = PlayerBaseRef->GetActorForwardVector();
 	FVector rightVector = PlayerBaseRef->GetActorRightVector();
 	FVector normalizedVel = Velocity.GetSafeNormal2D();
 
@@ -48,9 +49,9 @@ void UPlayerBaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (rightCos < 0.f)
 	{
 		forwardTheta *= -1;
-	}
+	}*/
 
-	MoveDirection = forwardTheta;
+	MoveDirection = UKismetAnimationLibrary::CalculateDirection(Velocity, actorRotation);
 
 	bMoving = (MovementComponentRef->GetCurrentAcceleration() != FVector::ZeroVector) && (GroundSpeed > 3.f);
 	IsFalling = MovementComponentRef->IsFalling();

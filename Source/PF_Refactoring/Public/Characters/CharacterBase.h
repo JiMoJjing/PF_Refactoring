@@ -5,6 +5,8 @@
 #include "Interfaces/IHitInterface.h"
 #include "CharacterBase.generated.h"
 
+class UAnimMontage;
+
 UCLASS()
 class PF_REFACTORING_API ACharacterBase : public ACharacter, public IIHitInterface
 {
@@ -19,7 +21,22 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	/** Montages */
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* HitMiddleMontage;
 
-	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* HitActor) override;
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* HitNormalMontage;
+
+public:
+	/** Hit  */
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor) override;
+
+	/** Hit React */
+	void HitReact(const FVector& ImpactPoint, float Strength);
+
+	UFUNCTION()
+		void PlayMontageWithSection(UAnimMontage* InAnimMontage, const FName& SectionName);
 
 };

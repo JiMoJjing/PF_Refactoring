@@ -19,5 +19,5 @@ class PF_REFACTORING_API IIHitInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
-		void GetHit(const FVector& ImpactPoint, AActor* HitActor);
+		void GetHit(const FVector& ImpactPoint, float Strength, AActor* HitActor);
 };

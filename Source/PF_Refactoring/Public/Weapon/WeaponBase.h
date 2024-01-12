@@ -34,6 +34,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshComponents")
 		class USkeletalMesh* SkeletalMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strength")
+		float NormalStrength = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strength")
+		float NowStrength;
+
 public:
 	UFUNCTION(BlueprintCallable)
 		void InitSceneComponents();
@@ -49,6 +55,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void BoxTrace(FHitResult& BoxHit);
+
+	UFUNCTION(BlueprintCallable)
+		void SetStrengthNormal() { NowStrength = NormalStrength; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetStrengthMiddle() { NowStrength = NormalStrength * 2.f; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetStrengthHeavy() { NowStrength = NormalStrength * 3.f; }
 
 protected:
 	UFUNCTION()
