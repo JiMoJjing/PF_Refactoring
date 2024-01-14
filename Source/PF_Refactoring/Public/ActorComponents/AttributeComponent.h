@@ -21,6 +21,7 @@ public:
 
 	
 public:
+	// Getter
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE float GetRunSpeed() const { return RunSpeed; }
 
@@ -31,8 +32,10 @@ public:
 		FORCEINLINE float GetAttackSpeed() const { return AttackSpeed; }
 
 private:
+	// Speed
 	UPROPERTY(EditAnywhere, Category = "Attribute | Speed", meta = (AllowPrivateAccess = "true"))
 		float RunSpeed = 600.f;
+	
 	UPROPERTY(EditAnywhere, Category = "Attribute | Speed", meta = (AllowPrivateAccess = "true"))
 		float WalkSpeed = 250.f;
 

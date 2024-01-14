@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "MontageComponent.generated.h"
 
+class UAnimMontage;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PF_REFACTORING_API UMontageComponent : public UActorComponent
@@ -25,42 +26,48 @@ private:
 
 	UPROPERTY()
 		class UStateComponent* StateComponentRef;
+
+	UPROPERTY()
+		class UAttributeComponent* AttributeComponentRef;
 	
 	UPROPERTY()
 		class UAnimInstance* AnimInstanceRef;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Montages | Equip", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* EquipMontage;
+		UAnimMontage* EquipMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* IdleWalkComboMontage;
+		UAnimMontage* IdleWalkComboMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* RunningComboMontage;
+		UAnimMontage* RunningComboMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		class UAnimMontage* JumpComboMontage;
+		UAnimMontage* JumpComboMontage;
 
 public:
-	/** Check Ref, false is nullptr */
+	// Check Ref, false is nullptr
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE bool CheckRef() const;
 
-	/** Unarmed <-> Armed */
+	// Unarmed <-> Armed, Called from AnimNotify_Drawning, AnimNotify_Sheathing
 	UFUNCTION(BlueprintCallable)
 		void PlayEquipMontage();
 
-	/** Attack */
+	// Attack, Called from APlayerBase::LeftMouseButtonPressed
 	UFUNCTION(BlueprintCallable)
 		void PlayAttackMontage();
 
+	// JumpToSection, Called from AnimNotify_JumpToSection
 	UFUNCTION(BlueprintCallable)
 		void PlayNextSection(const FName& InSectionName);
-
+	
+	// Called from AnimNotifyState_EanbleCombo
 	UFUNCTION(BlueprintCallable)
 		void SetEnableCombo(bool InEnableCombo) { bEnableCombo = InEnableCombo; }
 
+	// Called from APlayerBase::AttackFinished
 	UFUNCTION(BlueprintCallable)
 		void AttackMontageFinished();
 

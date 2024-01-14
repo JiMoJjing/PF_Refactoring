@@ -54,7 +54,7 @@ void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Add Input Mapping Context
+	// Add Input Mapping Context
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -62,6 +62,7 @@ void APlayerBase::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	// Spawn WeaponBase
 	if (GetWorld() && WeaponClass)
 	{
 		FActorSpawnParameters actorSpawnParams;
@@ -83,24 +84,6 @@ void APlayerBase::BeginPlay()
 void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//FRotator actorRotation = GetActorRotation();
-	//FVector velocity = GetVelocity();
-	//FVector normalizedVel = velocity.GetSafeNormal2D();
-
-	//FMatrix matrix = FRotationMatrix(actorRotation);
-	//FVector forwardVector = matrix.GetScaledAxis(EAxis::X);
-	//FVector rightVector = matrix.GetScaledAxis(EAxis::Y);
-
-	//float dot = FVector::DotProduct(normalizedVel, forwardVector);
-	//FString text1 = FString::Printf(TEXT("Not Acos : %f"), FMath::RadiansToDegrees(dot));
-	//FString text2 = FString::Printf(TEXT("Yes Acos : %f"), FMath::RadiansToDegrees(FMath::Acos(dot)));
-	//CLog::Print(text1, 5, 0.001f);
-	//CLog::Print(text2, 4, 0.001f);
-	//float dot2 = FVector::DotProduct(normalizedVel, rightVector);
-	//FString text3 = FString::Printf(TEXT("Dot rightVector : %f"), dot2);
-	//CLog::Print(text3, 3, 0.001f);
-
 }
 
 void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -128,8 +111,6 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 		//LeftMouseButton
 		EnhancedInputComponent->BindAction(LeftMouseButtonAction, ETriggerEvent::Started, this, &APlayerBase::LeftMouseButtonPressed);
-
-		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &APlayerBase::Dash);
 	}
 }
 
@@ -137,7 +118,6 @@ void APlayerBase::Move(const FInputActionValue& Value)
 {
 	if (StateComponent && !StateComponent->IsActionState(EActionState::EAS_Idle)) return;
 
-	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -177,12 +157,10 @@ void APlayerBase::MoveCompleted()
 
 void APlayerBase::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -190,7 +168,7 @@ void APlayerBase::Look(const FInputActionValue& Value)
 
 void APlayerBase::Jump()
 {
-	if (StateComponent && !StateComponent->IsActionState(EActionState::EAS_Idle)) return;
+	if (StateComponent && !StateComponent->CanJump()) return;
 
 	bPressedJump = true;
 	JumpKeyHoldTime = 0.0f;
@@ -204,16 +182,19 @@ void APlayerBase::StopJumping()
 
 void APlayerBase::LeftShiftPressed()
 {
+	// Set Running Speed
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
 
 void APlayerBase::LeftShiftReleased()
 {
+	// Set Walking Speed
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 }
 
 void APlayerBase::TabPressed()
 {
+	// Armed <-> Unarmed
 	if (MontageComponent)
 	{
 		MontageComponent->PlayEquipMontage();
@@ -222,19 +203,16 @@ void APlayerBase::TabPressed()
 
 void APlayerBase::LeftMouseButtonPressed()
 {
+	// Attack
 	if (StateComponent->IsArmedState(EArmedState::EAS_Armed) && MontageComponent)
 	{
 		MontageComponent->PlayAttackMontage();
 	}
 }
 
-void APlayerBase::Dash()
-{
-	CLog::Print(TEXT("Dash"), 3, 1.f);
-}
-
 void APlayerBase::Arm()
 {
+	//
 	StateComponent->SetArmedState(EArmedState::EAS_Armed);
 	bUseControllerRotationYaw = true;
 }
@@ -243,4 +221,20 @@ void APlayerBase::Disarm()
 {
 	StateComponent->SetArmedState(EArmedState::EAS_Unarmed);
 	bUseControllerRotationYaw = false;
+}
+
+void APlayerBase::AttackFinished()
+{
+	if (MontageComponent)
+	{
+		MontageComponent->AttackMontageFinished();
+	}
+	if (StateComponent)
+	{
+		StateComponent->AttackStateFinished();
+	}
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->AttackFinished();
+	}
 }

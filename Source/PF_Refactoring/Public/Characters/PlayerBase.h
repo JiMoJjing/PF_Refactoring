@@ -72,11 +72,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LeftMouseButtonAction;
 
-	/** Combo Dash Action (WW)*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-		UInputAction* DashAction;
-
-
 public:
 	APlayerBase();
 
@@ -89,24 +84,36 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-	/** Called for movement input */
+	/* MoveAction */
+	// Triggered
 	void Move(const FInputActionValue& Value);
+	// Completed
 	void MoveCompleted();
 
-	/** Called for looking input */
+	/* LookAction */
+	// Triggered
 	void Look(const FInputActionValue& Value);
-
+	
+	/* JumpAction */
+	// Triggered
 	virtual void Jump() override;
+	// Completed
 	virtual void StopJumping() override;
 
+	/* LeftShiftAction */
+	// Started
 	void LeftShiftPressed();
+	// Completed
 	void LeftShiftReleased();
 
+	/* TabAction*/
+	// Started
 	void TabPressed();
 
+	/* LeftMouseButtonAction */
+	// Started
 	void LeftMouseButtonPressed();
 
-	void Dash();
 
 public:
 	/** Returns CameraBoom subobject **/
@@ -123,7 +130,7 @@ public:
 		FORCEINLINE UMontageComponent* GetMontageComponent() const { return MontageComponent; }
 
 public:
-	/** DECLARE_EVENT */
+	// Move Event
 	DECLARE_EVENT(APlayerBase, FMoveEvent);
 	FMoveEvent& OnMoveEvent() { return MoveEvent; }
 private:
@@ -131,26 +138,37 @@ private:
 
 
 public:
-	/** 현재 움직임 입력이 있는지 체크할 bool */
+	// True when MoveKeyPressed (W, A, S, D), Use for StateComponent
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool IsMovePressed() { return bMovePressed; }
 private:
 	bool bMovePressed = false;
 
-	/** Unarmed <-> Armed */
 public:
+	// Unarmed <-> Armed, Called from AnimNotify_Drawing, AnimNotify_Sheathing
 	UFUNCTION(BlueprintCallable)
 		void Arm();
 	UFUNCTION(BlueprintCallable)
 		void Disarm();
 
-	/** Weapons */
+	/** Attack Finished, Called from AnimNotify_Attack_Finished
+	* MontageComponent->AttackMontageFinished
+	* StateComponent->AttackStateFinished
+	* EquippedWeapon->AttackFinished
+	*/
+	UFUNCTION(BlueprintCallable)
+		void AttackFinished();
+
 private:
+	// Weapon Class for SpawnActorClass
 	UPROPERTY(EditAnywhere, category = "Weapon", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<AWeaponBase> WeaponClass;
+
+	// Spawned Weapon
 	UPROPERTY()
 		AWeaponBase* EquippedWeapon;
 public:
+	// Weapon Getter
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		AWeaponBase* GetEquippedWeapon() { return EquippedWeapon; }
 };

@@ -1,6 +1,7 @@
 #include "ActorComponents/MontageComponent.h"
-#include "Characters/PlayerBase.h"
 #include "ActorComponents/StateComponent.h"
+#include "ActorComponents/AttributeComponent.h"
+#include "Characters/PlayerBase.h"
 
 #include "Utilities.h"
 
@@ -19,6 +20,7 @@ void UMontageComponent::BeginPlay()
 	if (PlayerBaseRef)
 	{
 		StateComponentRef = PlayerBaseRef->GetStateComponent();
+		AttributeComponentRef = PlayerBaseRef->GetAttributeComponent();
 		AnimInstanceRef = PlayerBaseRef->GetMesh()->GetAnimInstance();
 	}
 }
@@ -31,7 +33,7 @@ void UMontageComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 bool UMontageComponent::CheckRef() const
 {
-	return PlayerBaseRef && AnimInstanceRef && StateComponentRef;
+	return PlayerBaseRef && AnimInstanceRef && StateComponentRef && AttributeComponentRef;
 }
 
 void UMontageComponent::PlayEquipMontage()
@@ -39,7 +41,6 @@ void UMontageComponent::PlayEquipMontage()
 	if (!CheckRef()) return;
 
 	FName sectionName = TEXT("Sword_Drawing");
-
 	if (StateComponentRef->IsArmedState(EArmedState::EAS_Armed))
 	{
 		sectionName = TEXT("Sword_Sheathing");
@@ -56,17 +57,18 @@ void UMontageComponent::PlayAttackMontage()
 {
 	if (!CheckRef()) return;
 	if (!IdleWalkComboMontage) return;
-
+	
 	if (bEnableCombo)
 	{
 		bNextCombo = true;
 		return;
 	}
+
 	if (StateComponentRef->IsActionState(EActionState::EAS_Idle))
 	{
-		AnimInstanceRef->Montage_Play(IdleWalkComboMontage);
+		AnimInstanceRef->Montage_Play(IdleWalkComboMontage, AttributeComponentRef->GetAttackSpeed());
+		StateComponentRef->SetActionState(EActionState::EAS_Attacking);
 	}
-	StateComponentRef->SetActionState(EActionState::EAS_Attacking);
 }
 
 void UMontageComponent::PlayNextSection(const FName& InSectionName)
@@ -74,9 +76,15 @@ void UMontageComponent::PlayNextSection(const FName& InSectionName)
 	if (!CheckRef()) return;
 	if (!bNextCombo) return;
 
-	AnimInstanceRef->Montage_JumpToSection(InSectionName, AnimInstanceRef->GetCurrentActiveMontage());
-	StateComponentRef->SetActionState(EActionState::EAS_Attacking);
-	bNextCombo = false;
+	UAnimMontage* currentMontage = AnimInstanceRef->GetCurrentActiveMontage();
+
+	if (currentMontage)
+	{
+		AnimInstanceRef->Montage_JumpToSection(InSectionName, currentMontage);
+		AnimInstanceRef->Montage_SetPlayRate(currentMontage, AttributeComponentRef->GetAttackSpeed());
+		StateComponentRef->SetActionState(EActionState::EAS_Attacking);
+		bNextCombo = false;
+	}
 }
 
 void UMontageComponent::AttackMontageFinished()
@@ -85,11 +93,7 @@ void UMontageComponent::AttackMontageFinished()
 
 	bNextCombo = false;
 	bEnableCombo = false;
-	if (StateComponentRef->GetActionState() < EActionState::EAS_Hitted)
-	{
-		StateComponentRef->SetActionState(EActionState::EAS_Idle);
-	}
-	StateComponentRef->MovementStateChanged();
+
 	AnimInstanceRef->Montage_Stop(0.5f);
 }
 

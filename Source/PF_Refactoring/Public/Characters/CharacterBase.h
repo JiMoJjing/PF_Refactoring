@@ -22,7 +22,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	/** Montages */
+	// Hit React Montages
 	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitMiddleMontage;
 
@@ -30,7 +30,7 @@ private:
 		UAnimMontage* HitNormalMontage;
 
 public:
-	/** Hit  */
+	// IHitInterface implemantation
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor) override;
 
 	/** Hit React */

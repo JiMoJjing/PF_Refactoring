@@ -75,25 +75,9 @@ void AWeaponBase::AttachMeshToSocket(USceneComponent* InParent, const FName& InS
 	Mesh->AttachToComponent(InParent, transformRules, InSocketName);
 }
 
-void AWeaponBase::EnableCollision(ECollisionEnabled::Type InType)
+void AWeaponBase::SetBoxCollisionEnabled(ECollisionEnabled::Type InType)
 {
 	BoxCollision->SetCollisionEnabled(InType);
-}
-
-void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	FHitResult hitResult;
-
-	BoxTrace(hitResult);
-
-	if (hitResult.GetActor())
-	{
-		IIHitInterface* hitInterface = Cast<IIHitInterface>(hitResult.GetActor());
-		if (hitInterface)
-		{
-			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, NowStrength, GetOwner());
-		}
-	}
 }
 
 void AWeaponBase::BoxTrace(FHitResult& BoxHit)
@@ -117,4 +101,25 @@ void AWeaponBase::BoxTrace(FHitResult& BoxHit)
 		FLinearColor::Red,
 		2.f
 	);
+}
+
+void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	FHitResult hitResult;
+
+	BoxTrace(hitResult);
+
+	if (hitResult.GetActor())
+	{
+		IIHitInterface* hitInterface = Cast<IIHitInterface>(hitResult.GetActor());
+		if (hitInterface)
+		{
+			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, NowStrength, GetOwner());
+		}
+	}
+}
+
+void AWeaponBase::AttackFinished()
+{
+	SetStrengthNormal();
 }

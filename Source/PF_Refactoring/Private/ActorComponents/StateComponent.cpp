@@ -57,20 +57,22 @@ void UStateComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 void UStateComponent::MovementStateChanged()
 {
+	// If IsFalling, Set EMovementState Jumping
 	if (PlayerBaseRef->GetMovementComponent()->IsFalling())
 	{
 		SetMovementState(EMovementState::EMS_Jumping);
 		return;
 	}
-
+	// PlayerBase->bMovePressed is false, Set EMovementState Idle
 	if (PlayerBaseRef->IsMovePressed() == false)
 	{
 		SetMovementState(EMovementState::EMS_Idle);
 		return;
 	}
-
+	// Get speed by velocity for character is running or walking
 	float speed = PlayerBaseRef->GetVelocity().Size2D();
-
+	
+	// Get runspeed or walkspeed from AttributeComponent for check running or walking
 	if (PlayerBaseRef->GetAttributeComponent() == nullptr) return;
 
 	if (PlayerBaseRef->GetCharacterMovement()->GetMaxSpeed() == PlayerBaseRef->GetAttributeComponent()->GetRunSpeed())
@@ -87,6 +89,7 @@ void UStateComponent::MovementStateChanged()
 
 void UStateComponent::MovementModeChanged(ACharacter* InCharacter, EMovementMode InPrevMovementMode, uint8 InPrevCustomMovementMode)
 {
+	//EMovementMode variable from CharacterMovementComponent
 	EMovementMode newMovementMode = InCharacter->GetCharacterMovement()->MovementMode;
 
 	switch (newMovementMode)
@@ -127,5 +130,24 @@ void UStateComponent::SetArmedState(EArmedState InArmedState)
 	if (OnArmedStateChanged.IsBound())
 	{
 		OnArmedStateChanged.Broadcast(ArmedState);
+	}
+}
+
+bool UStateComponent::CanJump() const
+{
+	return IsActionState(EActionState::EAS_Idle);
+}
+
+bool UStateComponent::CanAttack() const
+{
+	return IsArmedState(EArmedState::EAS_Armed);
+}
+
+void UStateComponent::AttackStateFinished()
+{
+	if (GetActionState() < EActionState::EAS_Hitted)
+	{
+		SetActionState(EActionState::EAS_Idle);
+		MovementStateChanged();
 	}
 }

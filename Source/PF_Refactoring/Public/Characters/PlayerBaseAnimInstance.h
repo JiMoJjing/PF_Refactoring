@@ -15,6 +15,7 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	// For reduce tick function, use delegate
 	UFUNCTION(BlueprintCallable)
 		void ArmedStateChanged(EArmedState InArmedState);
 
@@ -39,9 +40,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		bool IsFalling;
-	
-	//UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	//	float InterpSpeed = 5.f;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		EArmedState ArmedState;
