@@ -4,7 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "MontageComponent.generated.h"
 
-class UAnimMontage;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PF_REFACTORING_API UMontageComponent : public UActorComponent
@@ -20,58 +19,27 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-private:
+protected:
+	// Reference
 	UPROPERTY()
-		class APlayerBase* PlayerBaseRef;
+		class ACharacterBase* CharacterBaseRef;
 
-	UPROPERTY()
-		class UStateComponent* StateComponentRef;
-
-	UPROPERTY()
-		class UAttributeComponent* AttributeComponentRef;
-	
 	UPROPERTY()
 		class UAnimInstance* AnimInstanceRef;
 
-private:
-	UPROPERTY(EditAnywhere, Category = "Montages | Equip", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* EquipMontage;
+protected:
+	// Hit React Montages
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* HitNormalMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* IdleWalkComboMontage;
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* HitMiddleMontage;
 
-	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* RunningComboMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* JumpComboMontage;
 
 public:
-	// Check Ref, false is nullptr
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE bool CheckRef() const;
-
-	// Unarmed <-> Armed, Called from AnimNotify_Drawning, AnimNotify_Sheathing
 	UFUNCTION(BlueprintCallable)
-		void PlayEquipMontage();
+		void PlayHitMontage(float InStrength, const FName& SectionName);
 
-	// Attack, Called from APlayerBase::LeftMouseButtonPressed
 	UFUNCTION(BlueprintCallable)
-		void PlayAttackMontage();
-
-	// JumpToSection, Called from AnimNotify_JumpToSection
-	UFUNCTION(BlueprintCallable)
-		void PlayNextSection(const FName& InSectionName);
-	
-	// Called from AnimNotifyState_EanbleCombo
-	UFUNCTION(BlueprintCallable)
-		void SetEnableCombo(bool InEnableCombo) { bEnableCombo = InEnableCombo; }
-
-	// Called from APlayerBase::AttackFinished
-	UFUNCTION(BlueprintCallable)
-		void AttackMontageFinished();
-
-private:
-	bool bEnableCombo = false;
-	bool bNextCombo = false;
+		void PlayMontageSection(UAnimMontage* InAnimMontage, const FName& SectionName);
 };

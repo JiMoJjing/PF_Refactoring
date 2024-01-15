@@ -1,6 +1,6 @@
 #include "AnimNotifies/AnimNotify_JumpToSection.h"
 #include "Characters/PlayerBase.h"
-#include "ActorComponents/MontageComponent.h"
+#include "ActorComponents/SwordMontageComponent.h"
 
 FString UAnimNotify_JumpToSection::GetNotifyName_Implementation() const
 {
@@ -13,10 +13,10 @@ void UAnimNotify_JumpToSection::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	if (playerBaseRef)
 	{
-		UMontageComponent* montageComponentRef = playerBaseRef->GetMontageComponent();
-		if (montageComponentRef)
+		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		if (swordMontageComponentRef)
 		{
-			montageComponentRef->PlayNextSection(SectionName);
+			swordMontageComponentRef->PlayNextSection(SectionName);
 		}
 	}
 }

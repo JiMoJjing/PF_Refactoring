@@ -6,6 +6,7 @@
 #include "CharacterBase.generated.h"
 
 class UAnimMontage;
+class UMontageComponent;
 
 UCLASS()
 class PF_REFACTORING_API ACharacterBase : public ACharacter, public IIHitInterface
@@ -21,14 +22,6 @@ protected:
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-private:
-	// Hit React Montages
-	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* HitMiddleMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* HitNormalMontage;
-
 public:
 	// IHitInterface implemantation
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor) override;
@@ -36,7 +29,13 @@ public:
 	/** Hit React */
 	void HitReact(const FVector& ImpactPoint, float Strength);
 
-	UFUNCTION()
-		void PlayMontageWithSection(UAnimMontage* InAnimMontage, const FName& SectionName);
+public:
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE UMontageComponent* GetMontageComponent() { return MontageComponent; }
+
+protected:
+	// MontageComponent, Must CreateDefaultSubobject in Constructor
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
+		UMontageComponent* MontageComponent;
 
 };

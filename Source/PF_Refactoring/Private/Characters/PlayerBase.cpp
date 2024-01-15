@@ -11,6 +11,7 @@
 #include "ActorComponents/StateComponent.h"
 #include "ActorComponents/AttributeComponent.h"
 #include "ActorComponents/MontageComponent.h"
+#include "ActorComponents/SwordMontageComponent.h"
 
 #include "Weapon/WeaponBase.h"
 
@@ -47,7 +48,7 @@ APlayerBase::APlayerBase()
 
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
-	MontageComponent = CreateDefaultSubobject<UMontageComponent>(TEXT("MontageComponent"));
+	MontageComponent = CreateDefaultSubobject<USwordMontageComponent>(TEXT("SwordMontageComponent"));
 }
 
 void APlayerBase::BeginPlay()
@@ -79,6 +80,8 @@ void APlayerBase::BeginPlay()
 			EquippedWeapon->AttachMeshToSocket(GetMesh(), TEXT("Sword_Attach_Pelvis"));
 		}
 	}
+	// SwordMontageComponentRef
+	SwordMontageComponentRef = Cast<USwordMontageComponent>(MontageComponent);
 }
 
 void APlayerBase::Tick(float DeltaTime)
@@ -195,18 +198,18 @@ void APlayerBase::LeftShiftReleased()
 void APlayerBase::TabPressed()
 {
 	// Armed <-> Unarmed
-	if (MontageComponent)
+	if (SwordMontageComponentRef)
 	{
-		MontageComponent->PlayEquipMontage();
+		SwordMontageComponentRef->PlayEquipMontage();
 	}
 }
 
 void APlayerBase::LeftMouseButtonPressed()
 {
 	// Attack
-	if (StateComponent->IsArmedState(EArmedState::EAS_Armed) && MontageComponent)
+	if (StateComponent->IsArmedState(EArmedState::EAS_Armed) && SwordMontageComponentRef)
 	{
-		MontageComponent->PlayAttackMontage();
+		SwordMontageComponentRef->PlayAttackMontage();
 	}
 }
 
@@ -225,9 +228,9 @@ void APlayerBase::Disarm()
 
 void APlayerBase::AttackFinished()
 {
-	if (MontageComponent)
+	if (SwordMontageComponentRef)
 	{
-		MontageComponent->AttackMontageFinished();
+		SwordMontageComponentRef->AttackMontageFinished();
 	}
 	if (StateComponent)
 	{

@@ -2,6 +2,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
+#include "ActorComponents/MontageComponent.h"
+
 #include "Utilities.h"
 
 ACharacterBase::ACharacterBase()
@@ -19,12 +21,13 @@ ACharacterBase::ACharacterBase()
 
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 	GetMesh()->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+
 }
 
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 void ACharacterBase::Tick(float DeltaTime)
@@ -71,25 +74,8 @@ void ACharacterBase::HitReact(const FVector& ImpactPoint, float Strength)
 		sectionName = TEXT("FromLeft");
 	}
 
-	if (Strength == 100.f)
+	if (MontageComponent)
 	{
-		PlayMontageWithSection(HitNormalMontage, sectionName);
-	}
-	else if (Strength == 200.f)
-	{
-		PlayMontageWithSection(HitMiddleMontage, sectionName);
-	}
-
-}
-
-void ACharacterBase::PlayMontageWithSection(UAnimMontage* InAnimMontage, const FName& SectionName)
-{
-	UAnimInstance* animInstance = GetMesh()->GetAnimInstance();
-	
-	if (animInstance && InAnimMontage)
-	{
-		animInstance->Montage_Play(InAnimMontage);
-		animInstance->Montage_JumpToSection(SectionName, InAnimMontage);
+		MontageComponent->PlayHitMontage(Strength, sectionName);
 	}
 }
-

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Characters/CharacterBase.h"
 #include "InputActionValue.h"
 #include "PlayerBase.generated.h"
 
@@ -12,14 +12,14 @@ class UInputMappingContext;
 class UInputAction;
 class UStateComponent;
 class UAttributeComponent;
-class UMontageComponent;
+class USwordMontageComponent;
 class AWeapon;
 
 //DECLARE_EVENT(APlayerBase, FMoveEvent);
 DECLARE_EVENT_OneParam(APlayerBase, FTestEvent, int32);
 
 UCLASS()
-class PF_REFACTORING_API APlayerBase : public ACharacter
+class PF_REFACTORING_API APlayerBase : public ACharacterBase
 {
 	GENERATED_BODY()
 
@@ -30,7 +30,8 @@ class PF_REFACTORING_API APlayerBase : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		UCameraComponent* FollowCamera;
-private:
+
+protected:
 	// Actor Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
 		UStateComponent* StateComponent;
@@ -38,8 +39,9 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
 		UAttributeComponent* AttributeComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
-		UMontageComponent* MontageComponent;
+	//CharacterBase / MontageComponent
+	UPROPERTY()
+		USwordMontageComponent* SwordMontageComponentRef;
 
 private:
 	// Inputs
@@ -127,7 +129,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
 	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE UMontageComponent* GetMontageComponent() const { return MontageComponent; }
+		FORCEINLINE USwordMontageComponent* GetSwordMontageComponent() const { return SwordMontageComponentRef; }
 
 public:
 	// Move Event

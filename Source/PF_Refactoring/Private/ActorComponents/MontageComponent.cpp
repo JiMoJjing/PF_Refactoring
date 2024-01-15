@@ -1,99 +1,46 @@
 #include "ActorComponents/MontageComponent.h"
-#include "ActorComponents/StateComponent.h"
-#include "ActorComponents/AttributeComponent.h"
-#include "Characters/PlayerBase.h"
-
-#include "Utilities.h"
-
+#include "Characters/CharacterBase.h"
+#include "Components/SkeletalMeshComponent.h"
 
 UMontageComponent::UMontageComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
 }
 
 void UMontageComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	PlayerBaseRef = Cast<APlayerBase>(GetOwner());
 
-	if (PlayerBaseRef)
+	CharacterBaseRef = Cast<ACharacterBase>(GetOwner());
+	if (CharacterBaseRef)
 	{
-		StateComponentRef = PlayerBaseRef->GetStateComponent();
-		AttributeComponentRef = PlayerBaseRef->GetAttributeComponent();
-		AnimInstanceRef = PlayerBaseRef->GetMesh()->GetAnimInstance();
+		AnimInstanceRef = CharacterBaseRef->GetMesh()->GetAnimInstance();
 	}
 }
 
 void UMontageComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
-bool UMontageComponent::CheckRef() const
+void UMontageComponent::PlayMontageSection(UAnimMontage* InAnimMontage, const FName& SectionName)
 {
-	return PlayerBaseRef && AnimInstanceRef && StateComponentRef && AttributeComponentRef;
-}
-
-void UMontageComponent::PlayEquipMontage()
-{
-	if (!CheckRef()) return;
-
-	FName sectionName = TEXT("Sword_Drawing");
-	if (StateComponentRef->IsArmedState(EArmedState::EAS_Armed))
+	if (AnimInstanceRef && InAnimMontage)
 	{
-		sectionName = TEXT("Sword_Sheathing");
-	}
-
-	if (EquipMontage)
-	{
-		AnimInstanceRef->Montage_Play(EquipMontage);
-		AnimInstanceRef->Montage_JumpToSection(sectionName, EquipMontage);
+		AnimInstanceRef->Montage_Play(InAnimMontage);
+		AnimInstanceRef->Montage_JumpToSection(SectionName, InAnimMontage);
 	}
 }
 
-void UMontageComponent::PlayAttackMontage()
+void UMontageComponent::PlayHitMontage(float InStrength, const FName& SectionName)
 {
-	if (!CheckRef()) return;
-	if (!IdleWalkComboMontage) return;
-	
-	if (bEnableCombo)
+	if (HitNormalMontage && (InStrength == 100.f))
 	{
-		bNextCombo = true;
-		return;
+		PlayMontageSection(HitNormalMontage, SectionName);
 	}
-
-	if (StateComponentRef->IsActionState(EActionState::EAS_Idle))
+	else if (HitMiddleMontage && (InStrength == 200.f))
 	{
-		AnimInstanceRef->Montage_Play(IdleWalkComboMontage, AttributeComponentRef->GetAttackSpeed());
-		StateComponentRef->SetActionState(EActionState::EAS_Attacking);
+		PlayMontageSection(HitMiddleMontage, SectionName);
 	}
 }
-
-void UMontageComponent::PlayNextSection(const FName& InSectionName)
-{
-	if (!CheckRef()) return;
-	if (!bNextCombo) return;
-
-	UAnimMontage* currentMontage = AnimInstanceRef->GetCurrentActiveMontage();
-
-	if (currentMontage)
-	{
-		AnimInstanceRef->Montage_JumpToSection(InSectionName, currentMontage);
-		AnimInstanceRef->Montage_SetPlayRate(currentMontage, AttributeComponentRef->GetAttackSpeed());
-		StateComponentRef->SetActionState(EActionState::EAS_Attacking);
-		bNextCombo = false;
-	}
-}
-
-void UMontageComponent::AttackMontageFinished()
-{
-	if (!CheckRef()) return;
-
-	bNextCombo = false;
-	bEnableCombo = false;
-
-	AnimInstanceRef->Montage_Stop(0.5f);
-}
-

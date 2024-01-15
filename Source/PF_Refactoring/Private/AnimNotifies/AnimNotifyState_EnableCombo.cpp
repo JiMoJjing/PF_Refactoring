@@ -1,6 +1,6 @@
 #include "AnimNotifies/AnimNotifyState_EnableCombo.h"
 #include "Characters/PlayerBase.h"
-#include "ActorComponents/MontageComponent.h"
+#include "ActorComponents/SwordMontageComponent.h"
 
 FString UAnimNotifyState_EnableCombo::GetNotifyName_Implementation() const
 {
@@ -13,10 +13,10 @@ void UAnimNotifyState_EnableCombo::NotifyBegin(USkeletalMeshComponent* MeshComp,
 
 	if (playerBaseRef)
 	{
-		UMontageComponent* montageComponentRef = playerBaseRef->GetMontageComponent();
-		if (montageComponentRef)
+		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		if (swordMontageComponentRef)
 		{
-			montageComponentRef->SetEnableCombo(true);
+			swordMontageComponentRef->SetEnableCombo(true);
 		}
 	}
 }
@@ -27,10 +27,10 @@ void UAnimNotifyState_EnableCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, U
 
 	if (playerBaseRef)
 	{
-		UMontageComponent* montageComponentRef = playerBaseRef->GetMontageComponent();
-		if (montageComponentRef)
+		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		if (swordMontageComponentRef)
 		{
-			montageComponentRef->SetEnableCombo(false);
+			swordMontageComponentRef->SetEnableCombo(false);
 		}
 	}
 }
