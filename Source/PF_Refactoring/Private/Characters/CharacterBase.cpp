@@ -1,8 +1,11 @@
 #include "Characters/CharacterBase.h"
+#include "Kismet/GameplayStatics.h"
+
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 #include "ActorComponents/MontageComponent.h"
+#include "ActorComponents/AttributeComponent.h"
 
 #include "Utilities.h"
 
@@ -77,5 +80,13 @@ void ACharacterBase::HitReact(const FVector& ImpactPoint, float Strength)
 	if (MontageComponent)
 	{
 		MontageComponent->PlayHitMontage(Strength, sectionName);
+	}
+}
+
+void ACharacterBase::ReceiveDamage(float InDamage)
+{
+	if (AttributeComponent)
+	{
+		AttributeComponent->ReceiveDamage(InDamage);
 	}
 }

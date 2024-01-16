@@ -41,6 +41,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strength")
 		float NowStrength;
 
+	TArray<AActor*> IgnoreActors;
+
 public:
 	// Attach Start, End scene component to skeletalmesh's socket(Start, End)
 	UFUNCTION(BlueprintCallable)
@@ -69,9 +71,14 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE float GetStrength() { return NowStrength; }
+
 	// Called from APlayerBase::AttackFinished
 	UFUNCTION(BlueprintCallable)
 		void AttackFinished();
+
+	UFUNCTION(BlueprintCallable)
+		void EmptyIgnoreActors();
+
 protected:
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

@@ -36,9 +36,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
 		UStateComponent* StateComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
-		UAttributeComponent* AttributeComponent;
-
+	//CharacterBase / AttributeComponent
+	
 	//CharacterBase / MontageComponent
 	UPROPERTY()
 		USwordMontageComponent* SwordMontageComponentRef;
@@ -126,8 +125,8 @@ public:
 	/** Returns ActorComponents */
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE UStateComponent* GetStateComponent() const { return StateComponent; }
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
+	//UFUNCTION(BlueprintCallable, BlueprintPure)
+	//	FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE USwordMontageComponent* GetSwordMontageComponent() const { return SwordMontageComponentRef; }
 

@@ -35,13 +35,13 @@ private:
 		UAnimMontage* EquipMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* IdleWalkComboMontage;
+		UAnimMontage* IdleWalkAttackMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* RunningComboMontage;
+		UAnimMontage* RunningAttackMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages | Attack", meta = (AllowPrivateAccess = "true"))
-		UAnimMontage* JumpComboMontage;
+		UAnimMontage* JumpAttackMontage;
 
 public:
 	// Check Ref, false is nullptr

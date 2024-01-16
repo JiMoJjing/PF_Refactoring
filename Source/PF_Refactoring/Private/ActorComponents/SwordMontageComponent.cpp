@@ -56,7 +56,7 @@ void USwordMontageComponent::PlayEquipMontage()
 void USwordMontageComponent::PlayAttackMontage()
 {
 	if (!CheckRef()) return;
-	if (!IdleWalkComboMontage) return;
+	if (!IdleWalkAttackMontage) return;
 	
 	if (bEnableCombo)
 	{
@@ -66,7 +66,7 @@ void USwordMontageComponent::PlayAttackMontage()
 
 	if (StateComponentRef->IsActionState(EActionState::EAS_Idle))
 	{
-		AnimInstanceRef->Montage_Play(IdleWalkComboMontage, AttributeComponentRef->GetAttackSpeed());
+		AnimInstanceRef->Montage_Play(IdleWalkAttackMontage, AttributeComponentRef->GetAttackSpeed());
 		StateComponentRef->SetActionState(EActionState::EAS_Attacking);
 	}
 }

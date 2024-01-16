@@ -19,3 +19,12 @@ void UAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
+void UAttributeComponent::ReceiveDamage(float InDamage)
+{
+	HP = FMath::Clamp(HP - InDamage, 0.f, MaxHP);
+	if (OnHPChanged.IsBound())
+	{
+		OnHPChanged.Broadcast(MaxHP, HP);
+	}
+}
+

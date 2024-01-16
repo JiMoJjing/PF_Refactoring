@@ -20,25 +20,6 @@ protected:
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-public:
-	// Speed
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE float GetRunSpeed() const { return RunSpeed; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE float GetWalkSpeed() const { return WalkSpeed; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE float GetAttackSpeed() const { return AttackSpeed; }
-
-	// Health
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE float GetHP() const { return HP; }
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE float GetMaxHP() const { return MaxHP; }
-
-
 
 private:
 	// Speed
@@ -57,6 +38,27 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Attribute | HP", meta = (AllowPrivateAccess = "true"))
 		float MaxHP;
+
+public:
+	// Speed
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE float GetRunSpeed() const { return RunSpeed; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE float GetWalkSpeed() const { return WalkSpeed; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE float GetAttackSpeed() const { return AttackSpeed; }
+
+	// Health
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE float GetHP() const { return HP; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+		FORCEINLINE float GetMaxHP() const { return MaxHP; }
+
+	UFUNCTION(BlueprintCallable)
+		void ReceiveDamage(float InDamage);
 
 public:
 	/** HP DELEGATE

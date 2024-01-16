@@ -1,10 +1,14 @@
 #include "Weapon/WeaponBase.h"
-#include "Engine/SkeletalMesh.h"
+
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "Engine/SkeletalMesh.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Characters/CharacterBase.h"
 
 #include "Interfaces/IHitInterface.h"
 
@@ -78,12 +82,13 @@ void AWeaponBase::AttachMeshToSocket(USceneComponent* InParent, const FName& InS
 void AWeaponBase::SetBoxCollisionEnabled(ECollisionEnabled::Type InType)
 {
 	BoxCollision->SetCollisionEnabled(InType);
+	EmptyIgnoreActors();
 }
 
 void AWeaponBase::BoxTrace(FHitResult& BoxHit)
 {
-	TArray<AActor*> IgnoreActors;
-	IgnoreActors.AddUnique(GetOwner());
+	IgnoreActors.Add(this);
+	IgnoreActors.Add(GetOwner());
 
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
@@ -101,6 +106,15 @@ void AWeaponBase::BoxTrace(FHitResult& BoxHit)
 		FLinearColor::Red,
 		2.f
 	);
+	if (BoxHit.GetActor())
+	{
+		IgnoreActors.AddUnique(BoxHit.GetActor());
+	}
+}
+
+void AWeaponBase::EmptyIgnoreActors()
+{
+	IgnoreActors.Empty();
 }
 
 void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -115,6 +129,7 @@ void AWeaponBase::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AA
 		if (hitInterface)
 		{
 			hitInterface->Execute_GetHit(hitResult.GetActor(), hitResult.ImpactPoint, NowStrength, GetOwner());
+			UGameplayStatics::ApplyDamage(hitResult.GetActor(), 10.f, GetInstigator()->GetController(), this, UDamageType::StaticClass());
 		}
 	}
 }
