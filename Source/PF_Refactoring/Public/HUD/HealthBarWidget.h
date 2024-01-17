@@ -16,10 +16,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 		class UProgressBar* HealthBar;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		float MaxHP;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 		float HP;
 
 public:

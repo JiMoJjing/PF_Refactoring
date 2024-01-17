@@ -37,8 +37,20 @@ public:
 	// IHitInterface implemantation
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor) override;
 
-	/** Hit React */
-	virtual void HitReact(const FVector& ImpactPoint, float Strength);
+	/** Hit React
+	* Normal
+	* Middle
+	* Heavy
+	*/
+	virtual void HitNormalReact(const FVector& ImpactPoint);
+
+	virtual void HitMiddleReact(const FVector& ImpactPoint);
+
+	virtual void HitHeavyReact(const FVector& ImpactPoint);
+
+	void GetDirectionalSectionName(const FVector& ImpactPoint, FName& SectionName);
+
+	virtual void WakeUp();
 
 public:
 	UFUNCTION(BlueprintCallable)

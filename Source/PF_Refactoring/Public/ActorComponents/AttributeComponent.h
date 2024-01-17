@@ -34,10 +34,10 @@ private:
 
 	// HP
 	UPROPERTY(EditAnywhere, Category = "Attribute | HP", meta = (AllowPrivateAccess = "true"))
-		float HP;
+		float HP = 100.f;
 
 	UPROPERTY(EditAnywhere, Category = "Attribute | HP", meta = (AllowPrivateAccess = "true"))
-		float MaxHP;
+		float MaxHP = 100.f	;
 
 public:
 	// Speed

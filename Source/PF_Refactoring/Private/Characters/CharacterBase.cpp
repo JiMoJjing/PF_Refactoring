@@ -41,10 +41,56 @@ void ACharacterBase::Tick(float DeltaTime)
 
 void ACharacterBase::GetHit_Implementation(const FVector& ImpactPoint, float Strength, AActor* HitActor)
 {
-	HitReact(HitActor->GetActorLocation(), Strength);
+	if (Strength == 100.f)
+	{
+		HitNormalReact(HitActor->GetActorLocation());
+	}
+	else if (Strength == 200.f)
+	{
+		HitMiddleReact(HitActor->GetActorLocation());
+	}
+	else if (Strength == 300.f)
+	{
+		HitHeavyReact(HitActor->GetActorLocation());
+	}
 }
 
-void ACharacterBase::HitReact(const FVector& ImpactPoint, float Strength)
+void ACharacterBase::HitNormalReact(const FVector& ImpactPoint)
+{
+	FName sectionName;
+	GetDirectionalSectionName(ImpactPoint, sectionName);
+	if (MontageComponent)
+	{
+		MontageComponent->PlayHitNormalMontage(sectionName);
+	}
+}
+
+void ACharacterBase::HitMiddleReact(const FVector& ImpactPoint)
+{
+	FName sectionName;
+	GetDirectionalSectionName(ImpactPoint, sectionName);
+	if (MontageComponent)
+	{
+		MontageComponent->PlayHitMiddleMontage(sectionName);
+	}
+}
+
+void ACharacterBase::HitHeavyReact(const FVector& ImpactPoint)
+{
+	const FVector actorLocation = GetActorLocation();
+	const FVector impactPointXY = FVector(ImpactPoint.X, ImpactPoint.Y, actorLocation.Z);
+
+	const FVector toHitVector = (impactPointXY - actorLocation).GetSafeNormal();
+
+	SetActorRotation(toHitVector.Rotation());
+	
+	if (MontageComponent)
+	{
+		MontageComponent->PlayHitHeavyMontage();
+	}
+}
+
+void ACharacterBase::GetDirectionalSectionName(const FVector& ImpactPoint, FName& SectionName)
 {
 	const FVector actorLocation = GetActorLocation();
 	const FVector impactPointXY = FVector(ImpactPoint.X, ImpactPoint.Y, actorLocation.Z);
@@ -62,24 +108,27 @@ void ACharacterBase::HitReact(const FVector& ImpactPoint, float Strength)
 		theta *= -1;
 	}
 
-	FName sectionName = TEXT("FromBack");
+	SectionName = TEXT("FromBack");
 
 	if (theta >= -45.f && theta < 45.f)
 	{
-		sectionName = TEXT("FromFront");
+		SectionName = TEXT("FromFront");
 	}
 	else if (theta >= 45.f && theta < 135.f)
 	{
-		sectionName = TEXT("FromRight");
+		SectionName = TEXT("FromRight");
 	}
 	else if (theta < -45.f && theta >= -135.f)
 	{
-		sectionName = TEXT("FromLeft");
+		SectionName = TEXT("FromLeft");
 	}
+}
 
+void ACharacterBase::WakeUp()
+{
 	if (MontageComponent)
 	{
-		MontageComponent->PlayHitMontage(Strength, sectionName);
+		MontageComponent->PlayWakeUpMontage();
 	}
 }
 
@@ -90,3 +139,4 @@ void ACharacterBase::ReceiveDamage(float InDamage)
 		AttributeComponent->ReceiveDamage(InDamage);
 	}
 }
+	

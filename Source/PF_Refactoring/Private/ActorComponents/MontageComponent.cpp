@@ -33,14 +33,31 @@ void UMontageComponent::PlayMontageSection(UAnimMontage* InAnimMontage, const FN
 	}
 }
 
-void UMontageComponent::PlayHitMontage(float InStrength, const FName& SectionName)
+void UMontageComponent::PlayMontage(UAnimMontage* InAnimMontage)
 {
-	if (HitNormalMontage && (InStrength == 100.f))
+	if (AnimInstanceRef && InAnimMontage)
 	{
-		PlayMontageSection(HitNormalMontage, SectionName);
-	}
-	else if (HitMiddleMontage && (InStrength == 200.f))
-	{
-		PlayMontageSection(HitMiddleMontage, SectionName);
+		AnimInstanceRef->Montage_Play(InAnimMontage);
 	}
 }
+
+void UMontageComponent::PlayHitNormalMontage(const FName& SectionName)
+{
+	PlayMontageSection(HitNormalMontage, SectionName);
+}
+
+void UMontageComponent::PlayHitMiddleMontage(const FName& SectionName)
+{
+	PlayMontageSection(HitMiddleMontage, SectionName);
+}
+
+void UMontageComponent::PlayHitHeavyMontage()
+{
+	PlayMontage(HitHeavyMontage);
+}
+
+void UMontageComponent::PlayWakeUpMontage()
+{
+	PlayMontage(WakeUpMontage);
+}
+

@@ -19,22 +19,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	// For overlap enemy
+	/*For overlap enemy*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BoxComponents")
 		class UBoxComponent* BoxCollision;
-	// Weapon Mesh
+	/*Weapon Mesh*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshComponents")
 		class USkeletalMeshComponent* Mesh;
-	// For Trace Start, End / For set boxcollision extend and relative location
+	/*For Trace Start, End / For set boxcollision extend and relative location*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SceneComponents")
 		class USceneComponent* Start;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SceneComponents")
 		class USceneComponent* End;
-	// Now skeletal mesh
+	/*Now skeletal mesh*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SkeletalMeshComponents")
 		class USkeletalMesh* SkeletalMesh;
-	// For divide enemy's hitted reaction
+	/*For divide enemy hitted reaction*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Strength")
 		float NormalStrength = 100.f;
 
@@ -44,22 +44,27 @@ protected:
 	TArray<AActor*> IgnoreActors;
 
 public:
-	// Attach Start, End scene component to skeletalmesh's socket(Start, End)
+	/* Attach Start, End scene component to skeletalmesh's socket(Start, End) */
 	UFUNCTION(BlueprintCallable)
 		void InitSceneComponents();
-	// Calculate and set box collision size, relative location
+
+	/* Calculate and set box collision size, relative location */
 	UFUNCTION(BlueprintCallable)
 		void InitBoxCollision();
-	// For Equip, Unequip. Called from AnimNotify_Drawing, Sheathing
+
+	/* For Equip, Unequip.Called from AnimNotify_Drawing, Sheathing */
 	UFUNCTION(BlueprintCallable)
 		void AttachMeshToSocket(USceneComponent* InParent, const FName& InSocketName);
-	// Query Only <-> No Collision , Called from AnimNotifyState_WeaponCollision
+
+	/*Query Only <-> No Collision , Called from AnimNotifyState_WeaponCollision*/
 	UFUNCTION(BlueprintCallable)
 		void SetBoxCollisionEnabled(ECollisionEnabled::Type InType);
-	// if enemy OnBoxBeginOverlap, Trace Start
+
+	/*if enemy OnBoxBeginOverlap, Trace Start*/
 	UFUNCTION(BlueprintCallable)
 		void BoxTrace(FHitResult& BoxHit);
-	// Set Strength, Called from AnimNotify_SetStrength
+
+	/*Set Strength, Called from AnimNotify_SetStrength*/
 	UFUNCTION(BlueprintCallable)
 		void SetStrengthNormal() { NowStrength = NormalStrength; }
 
@@ -72,7 +77,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FORCEINLINE float GetStrength() { return NowStrength; }
 
-	// Called from APlayerBase::AttackFinished
+	/*Called from APlayerBase::AttackFinished*/
 	UFUNCTION(BlueprintCallable)
 		void AttackFinished();
 

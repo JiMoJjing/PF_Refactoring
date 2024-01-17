@@ -12,9 +12,12 @@ void UHealthBarWidgetComponent::BeginPlay()
 	AEnemyBase* enemyBaseRef = Cast<AEnemyBase>(GetOwner());
 	if (enemyBaseRef)
 	{
-		if (enemyBaseRef->GetAttributeComponent())
+		UAttributeComponent* attributeComponentRef = enemyBaseRef->GetAttributeComponent();
+		if (attributeComponentRef)
 		{
-			enemyBaseRef->GetAttributeComponent()->OnHPChanged.AddDynamic(this, &UHealthBarWidgetComponent::HPChanged);
+			attributeComponentRef->OnHPChanged.AddDynamic(this, &UHealthBarWidgetComponent::HPChanged);
+			//attributeComponentRef->OnHPChanged.AddDynamic(HealthBarWidget, &UHealthBarWidget::HPChanged);
+			HPChanged(attributeComponentRef->GetMaxHP(), attributeComponentRef->GetHP());
 		}
 	}
 }

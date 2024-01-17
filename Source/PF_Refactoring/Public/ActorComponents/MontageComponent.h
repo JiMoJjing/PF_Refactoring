@@ -35,11 +35,29 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
 		UAnimMontage* HitMiddleMontage;
 
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* HitHeavyMontage;
+
+	// WakeUp Montage
+	UPROPERTY(EditAnywhere, Category = "Montages | Hit", meta = (AllowPrivateAccess = "true"))
+		UAnimMontage* WakeUpMontage;
 
 public:
 	UFUNCTION(BlueprintCallable)
-		void PlayHitMontage(float InStrength, const FName& SectionName);
+		void PlayMontageSection(UAnimMontage* InAnimMontage, const FName& SectionName);
 
 	UFUNCTION(BlueprintCallable)
-		void PlayMontageSection(UAnimMontage* InAnimMontage, const FName& SectionName);
+		void PlayMontage(UAnimMontage* InAnimMontage);
+
+	UFUNCTION(BlueprintCallable)
+		void PlayHitNormalMontage(const FName& SectionName);
+
+	UFUNCTION(BlueprintCallable)
+		void PlayHitMiddleMontage(const FName& SectionName);
+
+	UFUNCTION(BlueprintCallable)
+		void PlayHitHeavyMontage();
+
+	UFUNCTION(BlueprintCallable)
+		void PlayWakeUpMontage();
 };

@@ -16,17 +16,17 @@ AEnemyBase::AEnemyBase()
 	HealthBarWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void AEnemyBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
 float AEnemyBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	ReceiveDamage(DamageAmount);
 
 	return DamageAmount;
-}
-
-void AEnemyBase::BeginPlay()
-{
-	Super::BeginPlay();
-
 }
 
 void AEnemyBase::HPChanged(float InHPMax, float InHP)
