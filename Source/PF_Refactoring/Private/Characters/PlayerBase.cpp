@@ -12,8 +12,10 @@
 #include "ActorComponents/AttributeComponent.h"
 #include "ActorComponents/MontageComponent.h"
 #include "ActorComponents/SwordMontageComponent.h"
+#include "ActorComponents/TargetComponent.h"
 
 #include "Weapon/WeaponBase.h"
+#include "Enemy/EnemyBase.h"
 
 #include "Utilities.h"
 
@@ -48,7 +50,7 @@ APlayerBase::APlayerBase()
 
 	StateComponent = CreateDefaultSubobject<UStateComponent>(TEXT("StateComponent"));
 	AttributeComponent = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
-	MontageComponent = CreateDefaultSubobject<USwordMontageComponent>(TEXT("SwordMontageComponent"));
+	TargetComponent = CreateDefaultSubobject<UTargetComponent>(TEXT("TargetComponent"));
 }
 
 void APlayerBase::BeginPlay()
@@ -63,25 +65,6 @@ void APlayerBase::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	// Spawn WeaponBase
-	if (GetWorld() && WeaponClass)
-	{
-		FActorSpawnParameters actorSpawnParams;
-		actorSpawnParams.Owner = this;
-		actorSpawnParams.Instigator = this;
-		
-		FRotator rotation;
-		FVector location = FVector::ZeroVector;
-
-		EquippedWeapon = GetWorld()->SpawnActor<AWeaponBase>(WeaponClass, location, rotation, actorSpawnParams);
-
-		if (EquippedWeapon)
-		{
-			EquippedWeapon->AttachMeshToSocket(GetMesh(), TEXT("Sword_Attach_Pelvis"));
-		}
-	}
-	// SwordMontageComponentRef
-	SwordMontageComponentRef = Cast<USwordMontageComponent>(MontageComponent);
 }
 
 void APlayerBase::Tick(float DeltaTime)
@@ -106,14 +89,18 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerBase::Look);
 
 		//LeftShift
-		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Started, this, &APlayerBase::LeftShiftPressed);
-		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Completed, this, &APlayerBase::LeftShiftReleased);
+		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Started, this, &APlayerBase::LeftShiftStarted);
+		EnhancedInputComponent->BindAction(LeftShiftAction, ETriggerEvent::Completed, this, &APlayerBase::LeftShiftCompleted);
 
 		//Tab
-		EnhancedInputComponent->BindAction(TabAction, ETriggerEvent::Started, this, &APlayerBase::TabPressed);
+		EnhancedInputComponent->BindAction(TabAction, ETriggerEvent::Started, this, &APlayerBase::TabStarted);
 
 		//LeftMouseButton
-		EnhancedInputComponent->BindAction(LeftMouseButtonAction, ETriggerEvent::Started, this, &APlayerBase::LeftMouseButtonPressed);
+		EnhancedInputComponent->BindAction(LeftMouseButtonAction, ETriggerEvent::Started, this, &APlayerBase::LeftMouseButtonStarted);
+
+		//RightMouseButton
+		EnhancedInputComponent->BindAction(RightMouseButtonAction, ETriggerEvent::Started, this, &APlayerBase::RightMouseButtonStarted);
+		EnhancedInputComponent->BindAction(RightMouseButtonAction, ETriggerEvent::Completed, this, &APlayerBase::RightMouseButtonCompleted);
 	}
 }
 
@@ -183,33 +170,42 @@ void APlayerBase::StopJumping()
 	ResetJumpState();
 }
 
-void APlayerBase::LeftShiftPressed()
+void APlayerBase::LeftShiftStarted()
 {
 	// Set Running Speed
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
 
-void APlayerBase::LeftShiftReleased()
+void APlayerBase::LeftShiftCompleted()
 {
 	// Set Walking Speed
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
 }
 
-void APlayerBase::TabPressed()
+void APlayerBase::TabStarted()
 {
-	// Armed <-> Unarmed
-	if (SwordMontageComponentRef)
+
+}
+
+void APlayerBase::LeftMouseButtonStarted()
+{
+	
+}
+
+void APlayerBase::RightMouseButtonStarted()
+{
+	if (RightMouseButtonStartedEvent.IsBound())
 	{
-		SwordMontageComponentRef->PlayEquipMontage();
+		RightMouseButtonStartedEvent.Broadcast();
 	}
 }
 
-void APlayerBase::LeftMouseButtonPressed()
+
+void APlayerBase::RightMouseButtonCompleted()
 {
-	// Attack
-	if (StateComponent->IsArmedState(EArmedState::EAS_Armed) && SwordMontageComponentRef)
+	if (RightMouseButtonCompletedEvent.IsBound())
 	{
-		SwordMontageComponentRef->PlayAttackMontage();
+		RightMouseButtonCompletedEvent.Broadcast();
 	}
 }
 
@@ -228,10 +224,6 @@ void APlayerBase::Disarm()
 
 void APlayerBase::AttackFinished()
 {
-	if (SwordMontageComponentRef)
-	{
-		SwordMontageComponentRef->AttackMontageFinished();
-	}
 	if (StateComponent)
 	{
 		StateComponent->AttackStateFinished();

@@ -1,5 +1,5 @@
 #include "AnimNotifies/AnimNotify_JumpToSection.h"
-#include "Characters/PlayerBase.h"
+#include "Characters/PlayerSword.h"
 #include "ActorComponents/SwordMontageComponent.h"
 
 FString UAnimNotify_JumpToSection::GetNotifyName_Implementation() const
@@ -9,11 +9,11 @@ FString UAnimNotify_JumpToSection::GetNotifyName_Implementation() const
 
 void UAnimNotify_JumpToSection::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	APlayerBase* playerBaseRef = Cast<APlayerBase>(MeshComp->GetOwner());
+	APlayerSword* playerSwordRef = Cast<APlayerSword>(MeshComp->GetOwner());
 
-	if (playerBaseRef)
+	if (playerSwordRef)
 	{
-		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		USwordMontageComponent* swordMontageComponentRef = playerSwordRef->GetSwordMontageComponent();
 		if (swordMontageComponentRef)
 		{
 			swordMontageComponentRef->PlayNextSection(SectionName);

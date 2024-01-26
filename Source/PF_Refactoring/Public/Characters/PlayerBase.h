@@ -13,6 +13,7 @@ class UInputAction;
 class UStateComponent;
 class UAttributeComponent;
 class USwordMontageComponent;
+class UTargetComponent;
 class AWeapon;
 
 //DECLARE_EVENT(APlayerBase, FMoveEvent);
@@ -36,11 +37,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
 		UStateComponent* StateComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ActorComponents", meta = (AllowPrivateAccess = "true"))
+		UTargetComponent* TargetComponent;
+
 	//CharacterBase / AttributeComponent
 	
 	//CharacterBase / MontageComponent
-	UPROPERTY()
-		USwordMontageComponent* SwordMontageComponentRef;
 
 private:
 	// Inputs
@@ -69,9 +71,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* TabAction;
 
-	/** Mouse Left Button Action */
+	/** Left Mouse Button Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		UInputAction* LeftMouseButtonAction;
+
+	/** Right Mouse Button Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+		UInputAction* RightMouseButtonAction;
 
 public:
 	APlayerBase();
@@ -103,17 +109,22 @@ protected:
 
 	/* LeftShiftAction */
 	// Started
-	void LeftShiftPressed();
+	void LeftShiftStarted();
 	// Completed
-	void LeftShiftReleased();
+	void LeftShiftCompleted();
 
 	/* TabAction*/
 	// Started
-	void TabPressed();
+	virtual void TabStarted();
 
 	/* LeftMouseButtonAction */
 	// Started
-	void LeftMouseButtonPressed();
+	virtual void LeftMouseButtonStarted();
+
+	/* LeftMouseButtonAction */
+	void RightMouseButtonStarted();
+
+	void RightMouseButtonCompleted();
 
 
 public:
@@ -125,17 +136,29 @@ public:
 	/** Returns ActorComponents */
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		FORCEINLINE UStateComponent* GetStateComponent() const { return StateComponent; }
-	//UFUNCTION(BlueprintCallable, BlueprintPure)
-	//	FORCEINLINE UAttributeComponent* GetAttributeComponent() const { return AttributeComponent; }
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-		FORCEINLINE USwordMontageComponent* GetSwordMontageComponent() const { return SwordMontageComponentRef; }
 
+	/** Event
+	* MoveEvent
+	* RightMouseStartedEvent
+	* RightMouseCompletedEvent
+	*/
 public:
-	// Move Event
 	DECLARE_EVENT(APlayerBase, FMoveEvent);
 	FMoveEvent& OnMoveEvent() { return MoveEvent; }
+
+	DECLARE_EVENT(APlayerBase, FRightMouseButtonStarted);
+	FRightMouseButtonStarted& OnRightMouseButtonStarted() { return RightMouseButtonStartedEvent; }
+
+	DECLARE_EVENT(APlayerBase, FRightMouseButtonCompleted);
+	FRightMouseButtonCompleted& OnRightMouseButtonCompleted() { return RightMouseButtonCompletedEvent; }
+
 private:
 	FMoveEvent MoveEvent;
+
+	FRightMouseButtonStarted RightMouseButtonStartedEvent;
+
+	FRightMouseButtonCompleted RightMouseButtonCompletedEvent;
+
 
 
 public:
@@ -144,6 +167,7 @@ public:
 		FORCEINLINE bool IsMovePressed() { return bMovePressed; }
 private:
 	bool bMovePressed = false;
+	AActor* LockOnActor;
 
 public:
 	// Unarmed <-> Armed, Called from AnimNotify_Drawing, AnimNotify_Sheathing
@@ -153,14 +177,12 @@ public:
 		void Disarm();
 
 	/** Attack Finished, Called from AnimNotify_Attack_Finished
-	* MontageComponent->AttackMontageFinished
-	* StateComponent->AttackStateFinished
-	* EquippedWeapon->AttackFinished
+	* 
 	*/
 	UFUNCTION(BlueprintCallable)
-		void AttackFinished();
+		virtual void AttackFinished();
 
-private:
+protected:
 	// Weapon Class for SpawnActorClass
 	UPROPERTY(EditAnywhere, category = "Weapon", meta = (AllowPrivateAccess = "true"))
 		TSubclassOf<AWeaponBase> WeaponClass;
@@ -172,4 +194,5 @@ public:
 	// Weapon Getter
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 		AWeaponBase* GetEquippedWeapon() { return EquippedWeapon; }
+
 };

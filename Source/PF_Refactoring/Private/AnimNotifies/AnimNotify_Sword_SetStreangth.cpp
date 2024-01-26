@@ -1,6 +1,6 @@
 #include "AnimNotifies/AnimNotify_Sword_SetStrength.h"
 #include "Characters/PlayerBase.h"
-#include "Weapon/WeaponBase.h"
+#include "Weapon/WeaponSword.h"
 
 FString UAnimNotify_Sword_SetStrength::GetNotifyName_Implementation() const
 {
@@ -13,22 +13,22 @@ void UAnimNotify_Sword_SetStrength::Notify(USkeletalMeshComponent* MeshComp, UAn
 
 	if (playerBaseRef)
 	{
-		AWeaponBase* weaponBaseRef = playerBaseRef->GetEquippedWeapon();
-		if (weaponBaseRef)
+		AWeaponSword* weaponSwordRef = Cast<AWeaponSword>(playerBaseRef->GetEquippedWeapon());
+		if (weaponSwordRef)
 		{
 			switch (StrengthType)
 			{
 			case EStrengthType::EST_None:
-				weaponBaseRef->SetStrengthNormal();
+				weaponSwordRef->SetStrengthNormal();
 				break;
 			case EStrengthType::EST_Normal:
-				weaponBaseRef->SetStrengthNormal();
+				weaponSwordRef->SetStrengthNormal();
 				break;
 			case EStrengthType::EST_Middle:
-				weaponBaseRef->SetStrengthMiddle();
+				weaponSwordRef->SetStrengthMiddle();
 				break;
 			case EStrengthType::EST_Heavy:
-				weaponBaseRef->SetStrengthHeavy();
+				weaponSwordRef->SetStrengthHeavy();
 				break;
 			default:
 				break;

@@ -1,5 +1,5 @@
 #include "AnimNotifies/AnimNotifyState_EnableCombo.h"
-#include "Characters/PlayerBase.h"
+#include "Characters/PlayerSword.h"
 #include "ActorComponents/SwordMontageComponent.h"
 
 FString UAnimNotifyState_EnableCombo::GetNotifyName_Implementation() const
@@ -9,11 +9,11 @@ FString UAnimNotifyState_EnableCombo::GetNotifyName_Implementation() const
 
 void UAnimNotifyState_EnableCombo::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
-	APlayerBase* playerBaseRef = Cast<APlayerBase>(MeshComp->GetOwner());
+	APlayerSword* playerSwordRef = Cast<APlayerSword>(MeshComp->GetOwner());
 
-	if (playerBaseRef)
+	if (playerSwordRef)
 	{
-		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		USwordMontageComponent* swordMontageComponentRef = playerSwordRef->GetSwordMontageComponent();
 		if (swordMontageComponentRef)
 		{
 			swordMontageComponentRef->SetEnableCombo(true);
@@ -23,11 +23,11 @@ void UAnimNotifyState_EnableCombo::NotifyBegin(USkeletalMeshComponent* MeshComp,
 
 void UAnimNotifyState_EnableCombo::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	APlayerBase* playerBaseRef = Cast<APlayerBase>(MeshComp->GetOwner());
+	APlayerSword* playerSwordRef = Cast<APlayerSword>(MeshComp->GetOwner());
 
-	if (playerBaseRef)
+	if (playerSwordRef)
 	{
-		USwordMontageComponent* swordMontageComponentRef = playerBaseRef->GetSwordMontageComponent();
+		USwordMontageComponent* swordMontageComponentRef = playerSwordRef->GetSwordMontageComponent();
 		if (swordMontageComponentRef)
 		{
 			swordMontageComponentRef->SetEnableCombo(false);

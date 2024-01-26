@@ -1,6 +1,6 @@
 #include "AnimNotifies/AnimNotifyState_WeaponCollision.h"
 #include "Characters/PlayerBase.h"
-#include "Weapon/WeaponBase.h"
+#include "Weapon/WeaponSword.h"
 
 FString UAnimNotifyState_WeaponCollision::GetNotifyName_Implementation() const
 {
@@ -13,10 +13,10 @@ void UAnimNotifyState_WeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshC
 
 	if (playerBaseRef)
 	{
-		AWeaponBase* weaponBaseRef = playerBaseRef->GetEquippedWeapon();
-		if (weaponBaseRef)
+		AWeaponSword* weaponSwordRef = Cast<AWeaponSword>(playerBaseRef->GetEquippedWeapon());
+		if (weaponSwordRef)
 		{
-			weaponBaseRef->SetBoxCollisionEnabled(ECollisionEnabled::QueryOnly);
+			weaponSwordRef->SetBoxCollisionEnabled(ECollisionEnabled::QueryOnly);
 		}
 	}
 }
@@ -27,10 +27,10 @@ void UAnimNotifyState_WeaponCollision::NotifyEnd(USkeletalMeshComponent* MeshCom
 
 	if (playerBaseRef)
 	{
-		AWeaponBase* weaponBaseRef = playerBaseRef->GetEquippedWeapon();
-		if (weaponBaseRef)
+		AWeaponSword* weaponSwordRef = Cast<AWeaponSword>(playerBaseRef->GetEquippedWeapon());
+		if (weaponSwordRef)
 		{
-			weaponBaseRef->SetBoxCollisionEnabled(ECollisionEnabled::NoCollision);
+			weaponSwordRef->SetBoxCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
 }

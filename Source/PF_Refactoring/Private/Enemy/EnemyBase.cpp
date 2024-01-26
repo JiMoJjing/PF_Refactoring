@@ -14,6 +14,8 @@ AEnemyBase::AEnemyBase()
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
 	HealthBarWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	HealthBarWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Block);
 }
 
 void AEnemyBase::BeginPlay()
